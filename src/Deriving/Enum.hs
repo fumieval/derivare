@@ -15,7 +15,6 @@ import Data.Aeson
 import Data.Coerce
 import Data.Proxy
 import Data.String
-import Data.Text as T
 import Data.Text (Text)
 import GHC.Generics
 import GHC.TypeLits
@@ -31,13 +30,13 @@ class Enum a => NamedEnum a where
   default nameToEnum :: (Generic a, GNamedEnum (Rep a)) => Text -> Maybe a
   nameToEnum = nameToEnumDefault
 
-nameToEnumDefault :: forall a s. (Enum a, Generic a, GNamedEnum (Rep a)) => Text -> Maybe a
+nameToEnumDefault :: forall a. (Enum a, Generic a, GNamedEnum (Rep a)) => Text -> Maybe a
 nameToEnumDefault = \t -> toEnum <$> HM.lookup t m where
   (_, m) = genConNames @ (Rep a) 0 HM.empty
 
 class GNamedEnum f where
   toConName :: IsString s => f x -> s
-  genConNames :: forall f. Int -> HM.HashMap Text Int -> (Int, HM.HashMap Text Int)
+  genConNames :: Int -> HM.HashMap Text Int -> (Int, HM.HashMap Text Int)
 
 instance GNamedEnum f => GNamedEnum (D1 meta f) where
   toConName (M1 f) = toConName f

@@ -8,16 +8,13 @@
 {-# LANGUAGE TypeFamilies #-}
 module Deriving.Show.Simple (simpleShowsPrec, WrapSimple(..)) where
 
-import Data.Coerce
 import Data.Proxy
-import Data.String
 import Data.List (intersperse)
 import GHC.Generics
 import GHC.TypeLits
-import qualified Data.HashMap.Strict as HM
 
 simpleShowsPrec :: (Generic a, GShowSimple (Rep a)) => Int -> a -> ShowS
-simpleShowsPrec prec a = showParen (prec > 10) $ foldr (.) id
+simpleShowsPrec p a = showParen (p > 10) $ foldr (.) id
   $ intersperse (showChar ' ')
   $ shows' (from a)
 
@@ -40,7 +37,7 @@ instance (GShowSimple f, GShowSimple g) => GShowSimple (f :+: g) where
   shows' (L1 a) = shows' a
   shows' (R1 a) = shows' a
 
-instance (KnownSymbol name, GShowSimple f, c ~ MetaCons name fix rec) => GShowSimple (C1 c f) where
+instance (KnownSymbol name, GShowSimple f, c ~ 'MetaCons name fix rec) => GShowSimple (C1 c f) where
   shows' (M1 a) = showString (symbolVal (Proxy :: Proxy name)) : shows' a
 
 instance (GShowSimple f) => GShowSimple (D1 meta f) where
